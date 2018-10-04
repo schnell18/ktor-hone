@@ -10,23 +10,7 @@ configured properly.
 | -------------- | ------------------------------- |
 | hello          | The classic hello world program |
 
-## The `hello` project
-
-You can build the `hello` project as follows:
-
-    mvn install
-
-Launch the application using the follow command:
-
-    java -jar xxx.jar
-
-Then you can test the application using:
-
-    curl http://localhost:8080/
-
-or
-
-    curl http://localhost:8080/demo
-
+Please refer to the README.md file of each sub project for instructions
+on how to build, run and test.
 
 [1]: http://ktor.io/
