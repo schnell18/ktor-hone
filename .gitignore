@@ -1,0 +1,12 @@
+.gradle/
+build/
+target/
+out/
+*.swp
+*.swo
+*.iml
+*.ipr
+*.iws
+*.log
+*.pid
+*.class
