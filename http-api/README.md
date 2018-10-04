@@ -11,14 +11,33 @@ the context of ktor framework:
 
 ## Test the application
 
-You can post snippet to this application using the command as follows:
+You need get a JWT token as the first step:
 
     curl                                            \
-      -u user:password                              \
       --request POST                                \
       --header "Content-Type: application/json"     \
-      --data '{"snippet" : {"text" : "mysnippet"}}' \
+      --data '{"user": "test", "password": "test"}' \
+      http://127.0.0.1:8080/register
+
+You can post snippet to this application using the command as follows:
+
+    curl                                                       \
+      --request POST                                           \
+      --header "Content-Type: application/json"                \
+      --header "Authorization: Bearer {{jwt_token_from_prev}}" \
+      --data '{"snippet" : {"text" : "mysnippet"}}'            \
       http://127.0.0.1:8080/snippets
+
+Or you do the above command in one go:
+
+    curl                                                       \
+      --silent                                                 \
+      --request POST                                           \
+      --header "Content-Type: application/json"                \
+      --header "Authorization: Bearer $(curl -s --request POST --header "Content-Type: application/json" --data '{"user": "jack", "password": "jack"}' http://127.0.0.1:8080/register | jq -r .token)" \
+      --data '{"snippet" : {"text" : "mysnippet"}}'            \
+      http://127.0.0.1:8080/snippets
+
 
 Then get the snippets as follows:
 
