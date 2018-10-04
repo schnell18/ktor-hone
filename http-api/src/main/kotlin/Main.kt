@@ -9,7 +9,12 @@ import io.ktor.auth.UserIdPrincipal
 import io.ktor.auth.authenticate
 import io.ktor.auth.jwt.jwt
 import io.ktor.auth.principal
+import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.StatusPages
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -30,6 +35,8 @@ open class SimpleJWT(val secret: String) {
 }
 
 class User(val name: String, val password: String)
+
+class InvalidCredentialsException(message: String) : RuntimeException(message)
 
 val users = Collections.synchronizedMap(
     listOf(
@@ -70,6 +77,22 @@ fun Application.snippet() {
 
         }
     }
+    install(StatusPages) {
+        exception<InvalidCredentialsException> { exception ->
+            call.respond(HttpStatusCode.Unauthorized, mapOf("OK" to false, "error" to (exception.message ?: "")))
+        }
+    }
+    install(CORS) {
+        method(HttpMethod.Options)
+        method(HttpMethod.Get)
+        method(HttpMethod.Post)
+        method(HttpMethod.Put)
+        method(HttpMethod.Delete)
+        method(HttpMethod.Patch)
+        header(HttpHeaders.Authorization)
+        allowCredentials = true
+        anyHost()
+    }
     routing {
         route("/snippets") {
             get {
@@ -87,7 +110,7 @@ fun Application.snippet() {
         post("/register") {
             val post = call.receive<LoginRegister>()
             val user = users.getOrPut(post.user) { User(post.user, post.password) }
-            if (user.password != post.password) error("Invalid credentials")
+            if (user.password != post.password) throw InvalidCredentialsException("Invalid credentials")
             call.respond(mapOf("token" to simpleJwt.sign(user.name)))
         }
 

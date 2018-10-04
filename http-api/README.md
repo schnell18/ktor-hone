@@ -28,7 +28,7 @@ You can post snippet to this application using the command as follows:
       --data '{"snippet" : {"text" : "mysnippet"}}'            \
       http://127.0.0.1:8080/snippets
 
-Or you do the above command in one go:
+Or you do the above commands in one go:
 
     curl                                                       \
       --silent                                                 \
