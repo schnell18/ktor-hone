@@ -38,6 +38,17 @@ Or you do the above commands in one go:
       --data '{"snippet" : {"text" : "mysnippet"}}'            \
       http://127.0.0.1:8080/snippets
 
+Or to delete snippet:
+
+    curl                                                       \
+      --silent                                                 \
+      --request DELETE                                         \
+      --header "Content-Type: application/json"                \
+      --header "Authorization: Bearer $(curl -s --request POST --header "Content-Type: application/json" --data '{"user": "jack", "password": "jack"}' http://127.0.0.1:8080/register | jq -r .token)" \
+      --data '200'             \
+      http://127.0.0.1:8080/snippets
+
+
 
 Then get the snippets as follows:
 

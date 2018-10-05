@@ -18,10 +18,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.jackson.jackson
 import io.ktor.request.receive
 import io.ktor.response.respond
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.route
-import io.ktor.routing.routing
+import io.ktor.routing.*
 import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
@@ -48,7 +45,7 @@ val users = Collections.synchronizedMap(
 )
 
 class LoginRegister(val user: String, val password: String)
-data class Snippet(val user: String, val text: String)
+data class Snippet(val id: Long, val user: String, val text: String)
 data class PostSnippet(val snippet: PostSnippet.Text) {
     data class Text(val text: String)
 }
@@ -56,8 +53,8 @@ data class PostSnippet(val snippet: PostSnippet.Text) {
 
 val snippets = Collections.synchronizedList(
     mutableListOf(
-        Snippet(user = "test", text = "hello"),
-        Snippet(user = "test", text = "world")
+        Snippet(id = 100, user = "test", text = "hello"),
+        Snippet(id = 200, user = "test", text = "world")
     )
 )
 
@@ -102,7 +99,14 @@ fun Application.snippet() {
                 post {
                     val post = call.receive<PostSnippet>()
                     val user = call.principal<UserIdPrincipal>() ?: error("No login")
-                    snippets += Snippet(user.name, post.snippet.text)
+                    val nextId = ((snippets.maxBy { s -> s.id })?.id ?: 0) + 1
+                    snippets += Snippet(nextId, user.name, post.snippet.text)
+                    call.respond(mapOf("OK" to true, "id" to nextId))
+                }
+                delete {
+                    val postId = call.receive<Long>()
+                    val user = call.principal<UserIdPrincipal>() ?: error("No login")
+                    snippets.removeIf { s -> s.id == postId && user.name == s.user }
                     call.respond(mapOf("OK" to true))
                 }
             }
